@@ -435,4 +435,572 @@
                 <div><input type="text" id="investorName" required placeholder="اسم المستثمر" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm"></div>
                 <div><input type="tel" id="investorPhone" placeholder="رقم الجوال" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm"></div>
                 <div><input type="text" id="investorAddress" placeholder="العنوان / المدينة" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm"></div>
-                <div><input type="number" id="investorAmount" required min="100" placeholder="المبلغ المستثمر" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white
+                <div><input type="number" id="investorAmount" required min="100" placeholder="المبلغ المستثمر" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm"></div>
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('investorModal')" class="text-xs text-slate-400 px-4 py-2">إلغاء</button>
+                    <button type="submit" class="bg-emerald-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="transactionModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+            <button onclick="closeModal('transactionModal')" class="absolute top-4 left-4 text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4" id="txModalTitle">تسجيل أرباح/خسائر</h3>
+            <form onsubmit="handleQuickTransactionSubmit(event)" class="space-y-4">
+                <input type="hidden" id="txType" value="profit">
+                <div><input type="number" id="txAmountInput" required placeholder="المبلغ الإجمالي" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm font-bold"></div>
+                <div id="txFeeOptionGroup">
+                    <select id="txFeeSelect" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-amber-600 dark:text-amber-400 font-bold rounded-xl px-4 py-2.5 text-sm">
+                        <option value="0">0% - بدون عمولة إدارة</option>
+                        <option value="10">10% للمدير</option>
+                        <option value="15">15% للمدير</option>
+                        <option value="20">20% للمدير</option>
+                        <option value="25">25% للمدير</option>
+                        <option value="30" selected>30% للمدير (علي)</option>
+                    </select>
+                </div>
+                <div><input type="text" id="txNoteInput" placeholder="ملاحظة العملية" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm"></div>
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('transactionModal')" class="text-xs text-slate-400 px-4 py-2">إلغاء</button>
+                    <button type="submit" id="txSubmitBtn" class="bg-emerald-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl">اعتماد وتسجيل</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="withdrawModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+            <button onclick="closeModal('withdrawModal')" class="absolute top-4 left-4 text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">سحب أرباح للمستثمر</h3>
+            <form onsubmit="handleWithdrawalSubmit(event)" class="space-y-4">
+                <div><select id="withdrawInvestorSelect" onchange="updateWithdrawalMaxInfo()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-bold rounded-xl px-4 py-2.5 text-sm"></select></div>
+                <div class="p-3 bg-amber-500/10 rounded-xl flex justify-between text-xs"><span class="text-slate-300">المتاح للسحب:</span><span class="font-bold text-amber-400" id="availableWithdrawalText">0.00 SAR</span></div>
+                <div><input type="number" id="withdrawAmountInput" step="0.01" required min="1" placeholder="المبلغ المراد سحبه" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-bold rounded-xl px-4 py-2.5 text-sm"></div>
+                <div><input type="text" id="withdrawNoteInput" placeholder="ملاحظة التحويل" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm"></div>
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('withdrawModal')" class="text-xs text-slate-400 px-4 py-2">إلغاء</button>
+                    <button type="submit" class="bg-amber-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl">تأكيد السحب</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Application Sync Core -->
+    <script>
+        const syncChannel = new BroadcastChannel('mahafiz_sync_channel');
+
+        const defaultInvestors = [
+            { name: "يونس", phone: "0501112233", address: "الرياض", amount: 32000, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
+            { name: "علي (المدير)", phone: "0502223344", address: "جدة", amount: 18500, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: true },
+            { name: "صقر", phone: "0503334455", address: "الدمام", amount: 14000, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
+            { name: "يوسف", phone: "0504445566", address: "مكة المكرمة", amount: 12300, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
+            { name: "طارق", phone: "0505556677", address: "المدينة المنورة", amount: 11000, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
+            { name: "مازن", phone: "0506667788", address: "الخبر", amount: 7000, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
+            { name: "حسين", phone: "0507778899", address: "أبها", amount: 3700, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
+            { name: "جابر", phone: "0508889900", address: "تبوك", amount: 1500, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false }
+        ];
+
+        let investors = JSON.parse(localStorage.getItem('mahafiz_investors')) || defaultInvestors;
+        let totalProfitsRecorded = parseFloat(localStorage.getItem('mahafiz_total_profits')) || 0;
+        let totalLossesRecorded = parseFloat(localStorage.getItem('mahafiz_total_losses')) || 0;
+        let totalWithdrawalsRecorded = parseFloat(localStorage.getItem('mahafiz_total_withdrawals')) || 0;
+        let historyLogs = JSON.parse(localStorage.getItem('mahafiz_history_logs')) || [];
+        let portfolioName = localStorage.getItem('mahafiz_portfolio_name') || "محافظ (100k SAR)";
+
+        let currentCalcType = 'profit';
+        let sharesChartInstance = null;
+        let performanceChartInstance = null;
+
+        // دالة المزامنة المباشرة وإرسال التحديثات للكلاود
+        async function syncAndSaveDataToCloud() {
+            localStorage.setItem('mahafiz_investors', JSON.stringify(investors));
+            localStorage.setItem('mahafiz_total_profits', totalProfitsRecorded);
+            localStorage.setItem('mahafiz_total_losses', totalLossesRecorded);
+            localStorage.setItem('mahafiz_total_withdrawals', totalWithdrawalsRecorded);
+            localStorage.setItem('mahafiz_history_logs', JSON.stringify(historyLogs));
+            localStorage.setItem('mahafiz_portfolio_name', portfolioName);
+
+            const payload = {
+                investors, historyLogs, totalProfitsRecorded, totalLossesRecorded, totalWithdrawalsRecorded,
+                updatedAt: new Date().toISOString()
+            };
+
+            syncChannel.postMessage({ type: 'DATA_UPDATED', payload });
+
+            try {
+                await fetch('/api/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) {
+                console.log('التزامن السحابي يعمل محلياً', e);
+            }
+        }
+
+        async function fetchLatestDataFromCloud() {
+            try {
+                const response = await fetch('/api/get', { cache: 'no-store' });
+                if (response.ok) {
+                    const cloudData = await response.json();
+                    if (cloudData && cloudData.investors) {
+                        investors = cloudData.investors;
+                        historyLogs = cloudData.historyLogs || [];
+                        totalProfitsRecorded = cloudData.totalProfitsRecorded || 0;
+                        totalLossesRecorded = cloudData.totalLossesRecorded || 0;
+                        totalWithdrawalsRecorded = cloudData.totalWithdrawalsRecorded || 0;
+                        return true;
+                    }
+                }
+            } catch (e) { console.log('تعذر الجلب السحابي', e); }
+            return false;
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await fetchLatestDataFromCloud();
+            updateThemeIcon();
+            document.getElementById('settingPortfolioName').value = portfolioName;
+            renderDashboard();
+            initCharts();
+            calculateAndRenderTable();
+            setupMobileMenu();
+
+            setInterval(async () => {
+                const updated = await fetchLatestDataFromCloud();
+                if (updated) renderDashboard();
+            }, 5000);
+        });
+
+        function resetPortfolioData() {
+            if (confirm("هل أنت متأكد من إعادة ضبط وتصفير جميع بيانات المحفظة؟")) {
+                localStorage.clear();
+                investors = defaultInvestors;
+                totalProfitsRecorded = 0; totalLossesRecorded = 0; totalWithdrawalsRecorded = 0; historyLogs = [];
+                syncAndSaveDataToCloud();
+                location.reload();
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon();
+            updateChartColors();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('themeToggleIcon');
+            if (icon) icon.className = document.documentElement.classList.contains('dark') ? "fa-solid fa-sun text-amber-400 text-base" : "fa-solid fa-moon text-slate-700 text-base";
+        }
+
+        function updateChartColors() {
+            if (!performanceChartInstance) return;
+            const isDark = document.documentElement.classList.contains('dark');
+            performanceChartInstance.options.scales.y.grid.color = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+            performanceChartInstance.options.scales.y.ticks.color = isDark ? '#94a3b8' : '#64748b';
+            performanceChartInstance.options.scales.x.ticks.color = isDark ? '#94a3b8' : '#64748b';
+            performanceChartInstance.update();
+        }
+
+        function getTotalBaseCapital() { return investors.reduce((sum, inv) => sum + inv.amount, 0); }
+
+        function processPortfolioTransaction(type, totalAmount, feePercent = 0) {
+            const baseCapital = getTotalBaseCapital();
+
+            if (type === 'profit') {
+                totalProfitsRecorded += totalAmount;
+                let totalManagerFeeCollected = 0;
+                const rawShares = investors.map(inv => totalAmount * (inv.amount / baseCapital));
+
+                investors.forEach((inv, i) => {
+                    const rawProfit = rawShares[i];
+                    if (!inv.isManager) {
+                        const feeCut = rawProfit * (feePercent / 100);
+                        totalManagerFeeCollected += feeCut;
+                        inv.profitAccumulated += (rawProfit - feeCut);
+                    }
+                });
+
+                investors.forEach((inv, i) => {
+                    if (inv.isManager) inv.profitAccumulated += (rawShares[i] + totalManagerFeeCollected);
+                });
+            } else if (type === 'loss') {
+                totalLossesRecorded += totalAmount;
+                investors.forEach(inv => inv.lossAccumulated += totalAmount * (inv.amount / baseCapital));
+            }
+            syncAndSaveDataToCloud();
+        }
+
+        function renderDashboard() {
+            const baseCapital = getTotalBaseCapital();
+            const netProfitLoss = totalProfitsRecorded - totalLossesRecorded;
+            const currentNetValue = baseCapital + netProfitLoss - totalWithdrawalsRecorded;
+
+            document.getElementById('kpi-aum').innerHTML = `${baseCapital.toLocaleString()} <span class="text-xs font-normal text-slate-500">ريال</span>`;
+            document.getElementById('kpi-investors-count').innerText = `${investors.length} مستثمرين`;
+            document.getElementById('chart-participants-count').innerText = `${investors.length} مشاركين`;
+            document.getElementById('kpi-net-value').innerHTML = `${currentNetValue.toLocaleString()} <span class="text-xs font-normal text-slate-500">ريال</span>`;
+            document.getElementById('kpi-total-profits').innerHTML = `+${totalProfitsRecorded.toLocaleString()} <span class="text-xs font-normal text-slate-500">ريال</span>`;
+            document.getElementById('kpi-total-withdrawals').innerHTML = `${totalWithdrawalsRecorded.toLocaleString()} <span class="text-xs font-normal text-slate-500">ريال</span>`;
+            document.getElementById('kpi-total-losses').innerHTML = `${totalLossesRecorded.toLocaleString()} <span class="text-xs font-normal text-slate-500">ريال</span>`;
+
+            document.getElementById('kpi-profit-ratio').innerText = `+${baseCapital > 0 ? ((totalProfitsRecorded / baseCapital) * 100).toFixed(2) : 0}%`;
+            document.getElementById('kpi-loss-ratio').innerText = `-${baseCapital > 0 ? ((totalLossesRecorded / baseCapital) * 100).toFixed(2) : 0}%`;
+
+            const tbody = document.getElementById('investorsTableBody');
+            tbody.innerHTML = '';
+
+            investors.forEach((inv, index) => {
+                const sharePercent = baseCapital > 0 ? ((inv.amount / baseCapital) * 100).toFixed(2) : 0;
+                const availableForWithdrawal = Math.max(0, inv.profitAccumulated - inv.withdrawnProfits);
+                const netBalance = inv.amount + inv.profitAccumulated - inv.lossAccumulated - inv.withdrawnProfits;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-100 dark:hover:bg-slate-800/40 transition";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        ${inv.isManager ? '<i class="fa-solid fa-user-shield text-amber-500 text-xs"></i>' : '<i class="fa-solid fa-user text-slate-400 text-xs"></i>'}
+                        ${inv.name}
+                    </td>
+                    <td class="px-6 py-4 text-xs text-slate-600 dark:text-slate-300">
+                        <div><i class="fa-solid fa-phone text-emerald-500 text-[10px]"></i> ${inv.phone || 'غير مدخل'}</div>
+                        <div class="text-slate-400 mt-1"><i class="fa-solid fa-location-dot text-rose-500 text-[10px]"></i> ${inv.address || 'غير مدخل'}</div>
+                    </td>
+                    <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200">${inv.amount.toLocaleString()} SAR</td>
+                    <td class="px-6 py-4"><span class="bg-slate-200 dark:bg-slate-800 text-amber-600 dark:text-amber-400 border border-slate-300 dark:border-slate-700 text-xs font-bold px-2.5 py-1 rounded-lg">${sharePercent}%</span></td>
+                    <td class="px-6 py-4 font-bold text-emerald-600 dark:text-emerald-400">+${inv.profitAccumulated.toFixed(2)} SAR</td>
+                    <td class="px-6 py-4 font-bold text-amber-600 dark:text-amber-400">${inv.withdrawnProfits > 0 ? '-' + inv.withdrawnProfits.toFixed(2) : '0.00'} SAR</td>
+                    <td class="px-6 py-4 font-extrabold text-emerald-600 dark:text-emerald-300">${availableForWithdrawal.toFixed(2)} SAR</td>
+                    <td class="px-6 py-4 font-bold text-rose-600 dark:text-rose-400">-${inv.lossAccumulated.toFixed(2)} SAR</td>
+                    <td class="px-6 py-4 font-extrabold text-slate-900 dark:text-white text-base">${netBalance.toFixed(2)} SAR</td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="quickOpenWithdrawal(${index})" class="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-xs font-bold px-2.5 py-1 rounded-lg">سحب</button>
+                            <button onclick="openEditInvestor(${index})" class="text-slate-400 hover:text-amber-500 px-1.5 py-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderInvestorCards();
+            renderHistoryLogs();
+            if (sharesChartInstance) updateChartsData();
+        }
+
+        function renderInvestorCards() {
+            const grid = document.getElementById('investorsCardsGrid');
+            const baseCapital = getTotalBaseCapital();
+            grid.innerHTML = '';
+
+            investors.forEach((inv, index) => {
+                const percent = baseCapital > 0 ? ((inv.amount / baseCapital) * 100).toFixed(2) : 0;
+                const availableForWithdrawal = Math.max(0, inv.profitAccumulated - inv.withdrawnProfits);
+                const netBalance = inv.amount + inv.profitAccumulated - inv.lossAccumulated - inv.withdrawnProfits;
+
+                const card = document.createElement('div');
+                card.className = "bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-bold text-slate-900 dark:text-white">${inv.name}</span>
+                            <span class="text-xs bg-slate-100 dark:bg-slate-800 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-full">${percent}%</span>
+                        </div>
+                        <div class="text-xs text-slate-500 mb-1">رأس المال: <strong class="text-slate-800 dark:text-slate-200">${inv.amount.toLocaleString()} SAR</strong></div>
+                        <div class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mb-2">متاح للسحب: <strong>${availableForWithdrawal.toFixed(2)} SAR</strong></div>
+                        <div class="text-xl font-extrabold text-slate-900 dark:text-white mt-1">${netBalance.toFixed(2)} <span class="text-xs font-normal text-slate-500">SAR</span></div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderHistoryLogs() {
+            const container = document.getElementById('historyList');
+            container.innerHTML = '';
+            if (historyLogs.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-500 text-sm">لا توجد عمليات مسجلة</div>`;
+                return;
+            }
+            historyLogs.forEach(log => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-4 rounded-xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800";
+                item.innerHTML = `<div><div class="font-bold text-sm text-slate-900 dark:text-white">${log.title}</div><div class="text-xs text-slate-500">${log.note} - ${log.date}</div></div><div class="font-extrabold text-sm">${log.amount.toLocaleString()} SAR</div>`;
+                container.appendChild(item);
+            });
+        }
+
+        function setCalcType(type) {
+            currentCalcType = type;
+            const profitBtn = document.getElementById('calcTypeProfitBtn');
+            const lossBtn = document.getElementById('calcTypeLossBtn');
+            
+            if (type === 'profit') {
+                profitBtn.className = "w-1/2 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow";
+                lossBtn.className = "w-1/2 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+                document.getElementById('managerFeeContainer').style.display = 'block';
+                document.getElementById('calcAmountLabel').innerText = 'المبلغ الإجمالي للربح (SAR)';
+            } else {
+                lossBtn.className = "w-1/2 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 bg-rose-600 text-white shadow";
+                profitBtn.className = "w-1/2 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+                document.getElementById('managerFeeContainer').style.display = 'none';
+                document.getElementById('calcAmountLabel').innerText = 'المبلغ الإجمالي للخسارة (SAR)';
+            }
+            calculateAndRenderTable();
+        }
+
+        function calculateAndRenderTable() {
+            const amountInput = parseFloat(document.getElementById('calcAmountInput').value) || 0;
+            const feePercent = currentCalcType === 'profit' ? (parseFloat(document.getElementById('calcManagerFeeSelect').value) || 0) : 0;
+            const baseCapital = getTotalBaseCapital();
+
+            const tbody = document.getElementById('calculatorResultsBody');
+            tbody.innerHTML = '';
+
+            let totalManagerFeeCollected = 0;
+            const rawShares = investors.map(inv => amountInput * (inv.amount / baseCapital));
+
+            investors.forEach((inv, i) => {
+                if (!inv.isManager) {
+                    const feeCut = rawShares[i] * (feePercent / 100);
+                    totalManagerFeeCollected += feeCut;
+                }
+            });
+
+            investors.forEach((inv, i) => {
+                const ratio = baseCapital > 0 ? (inv.amount / baseCapital) : 0;
+                const rawShare = rawShares[i];
+                let feeText = "0.00 SAR";
+                let finalShare = rawShare;
+
+                if (currentCalcType === 'profit') {
+                    if (inv.isManager) {
+                        feeText = `+${totalManagerFeeCollected.toFixed(2)} SAR (مكافأة)`;
+                        finalShare = rawShare + totalManagerFeeCollected;
+                    } else {
+                        const feeCut = rawShare * (feePercent / 100);
+                        feeText = `-${feeCut.toFixed(2)} SAR (${feePercent}%)`;
+                        finalShare = rawShare - feeCut;
+                    }
+                } else {
+                    feeText = "غير مستقطع (خسارة)";
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-3.5 font-bold text-slate-900 dark:text-white">${inv.name}</td>
+                    <td class="px-6 py-3.5">${inv.amount.toLocaleString()} SAR</td>
+                    <td class="px-6 py-3.5">${(ratio * 100).toFixed(2)}%</td>
+                    <td class="px-6 py-3.5">${rawShare.toFixed(2)} SAR</td>
+                    <td class="px-6 py-3.5 ${currentCalcType === 'profit' ? 'text-amber-500' : 'text-slate-400'}">${feeText}</td>
+                    <td class="px-6 py-3.5 font-bold ${currentCalcType === 'profit' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${finalShare.toFixed(2)} SAR</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function applyCalculatedTransaction() {
+            const amountInput = parseFloat(document.getElementById('calcAmountInput').value) || 0;
+            const feePercent = currentCalcType === 'profit' ? (parseFloat(document.getElementById('calcManagerFeeSelect').value) || 0) : 0;
+            if (amountInput <= 0) return;
+
+            processPortfolioTransaction(currentCalcType, amountInput, feePercent);
+            historyLogs.unshift({ date: new Date().toLocaleDateString('ar-SA'), type: currentCalcType, title: currentCalcType === 'profit' ? "توزيع أرباح" : "خصم خسارة", amount: amountInput, note: "معالجة من الحاسبة التفاعلية" });
+            syncAndSaveDataToCloud();
+            renderDashboard();
+            alert("تم اعتماد العملية ومزامنتها سحابياً مع الجوالات بنجاح!");
+        }
+
+        function openWithdrawalModal() { 
+            const select = document.getElementById('withdrawInvestorSelect');
+            select.innerHTML = '';
+            investors.forEach((inv, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.text = `${inv.name} (المتاح: ${Math.max(0, inv.profitAccumulated - inv.withdrawnProfits).toFixed(2)} SAR)`;
+                select.appendChild(option);
+            });
+            openModal('withdrawModal'); 
+            updateWithdrawalMaxInfo(); 
+        }
+
+        function quickOpenWithdrawal(idx) { openWithdrawalModal(); document.getElementById('withdrawInvestorSelect').value = idx; updateWithdrawalMaxInfo(); }
+        
+        function updateWithdrawalMaxInfo() {
+            const idx = parseInt(document.getElementById('withdrawInvestorSelect').value) || 0;
+            const inv = investors[idx];
+            if (inv) document.getElementById('availableWithdrawalText').innerText = `${Math.max(0, inv.profitAccumulated - inv.withdrawnProfits).toFixed(2)} SAR`;
+        }
+
+        function handleWithdrawalSubmit(e) {
+            e.preventDefault();
+            const idx = parseInt(document.getElementById('withdrawInvestorSelect').value);
+            const amount = parseFloat(document.getElementById('withdrawAmountInput').value) || 0;
+            const note = document.getElementById('withdrawNoteInput').value;
+            const inv = investors[idx];
+            if (!inv || amount <= 0) return;
+
+            inv.withdrawnProfits += amount;
+            totalWithdrawalsRecorded += amount;
+            historyLogs.unshift({ date: new Date().toLocaleDateString('ar-SA'), type: 'withdrawal', title: `سحب أرباح: ${inv.name}`, amount: amount, note: note || "سحب يدوّي" });
+            syncAndSaveDataToCloud();
+            closeModal('withdrawModal');
+            renderDashboard();
+            alert("تم تسجيل السحب ومزامنته سحابياً بنجاح!");
+        }
+
+        function openTransactionModal(type) { 
+            document.getElementById('txType').value = type; 
+            document.getElementById('txModalTitle').innerText = type === 'profit' ? 'تسجيل توزيع أرباح جديدة' : 'تسجيل خصم خسارة';
+            document.getElementById('txFeeOptionGroup').style.display = type === 'profit' ? 'block' : 'none';
+            openModal('transactionModal'); 
+        }
+
+        function handleQuickTransactionSubmit(e) {
+            e.preventDefault();
+            const type = document.getElementById('txType').value;
+            const amount = parseFloat(document.getElementById('txAmountInput').value) || 0;
+            const feePercent = type === 'profit' ? parseFloat(document.getElementById('txFeeSelect').value) : 0;
+            const note = document.getElementById('txNoteInput').value;
+
+            if (amount <= 0) return;
+
+            processPortfolioTransaction(type, amount, feePercent);
+            historyLogs.unshift({ date: new Date().toLocaleDateString('ar-SA'), type, title: type === 'profit' ? "توزيع أرباح" : "خصم خسارة", amount, note: note || "تسجيل سريع" });
+            syncAndSaveDataToCloud();
+            closeModal('transactionModal');
+            renderDashboard();
+        }
+
+        function initCharts() {
+            const ctx1 = document.getElementById('sharesChart').getContext('2d');
+            sharesChartInstance = new Chart(ctx1, { 
+                type: 'doughnut', 
+                data: { 
+                    labels: investors.map(i => i.name), 
+                    datasets: [{ 
+                        data: investors.map(i => i.amount), 
+                        backgroundColor: ['#10b981', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#3b82f6', '#64748b', '#a855f7'] 
+                    }] 
+                }, 
+                options: { responsive: true, plugins: { legend: { display: false } } } 
+            });
+
+            const ctx2 = document.getElementById('performanceChart').getContext('2d');
+            performanceChartInstance = new Chart(ctx2, { 
+                type: 'line', 
+                data: { 
+                    labels: ['البداية', 'الآن'], 
+                    datasets: [{ 
+                        data: [100000, getTotalBaseCapital() + (totalProfitsRecorded - totalLossesRecorded - totalWithdrawalsRecorded)], 
+                        borderColor: '#06b6d4', 
+                        fill: true,
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        tension: 0.3
+                    }] 
+                }, 
+                options: { responsive: true, plugins: { legend: { display: false } } } 
+            });
+        }
+
+        function updateChartsData() {
+            sharesChartInstance.data.labels = investors.map(i => i.name);
+            sharesChartInstance.data.datasets[0].data = investors.map(i => i.amount);
+            sharesChartInstance.update();
+
+            performanceChartInstance.data.datasets[0].data[1] = getTotalBaseCapital() + (totalProfitsRecorded - totalLossesRecorded - totalWithdrawalsRecorded);
+            performanceChartInstance.update();
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function handleSaveInvestor(e) {
+            e.preventDefault();
+            const index = parseInt(document.getElementById('investorIndex').value);
+            const name = document.getElementById('investorName').value;
+            const phone = document.getElementById('investorPhone').value;
+            const address = document.getElementById('investorAddress').value;
+            const amount = parseFloat(document.getElementById('investorAmount').value);
+
+            if (index >= 0) {
+                investors[index].name = name; 
+                investors[index].phone = phone; 
+                investors[index].address = address; 
+                investors[index].amount = amount;
+            } else {
+                investors.push({ name, phone, address, amount, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false });
+            }
+            syncAndSaveDataToCloud();
+            closeModal('investorModal');
+            document.getElementById('investorForm').reset();
+            document.getElementById('investorIndex').value = "-1";
+            renderDashboard();
+        }
+
+        function openEditInvestor(index) {
+            const inv = investors[index];
+            document.getElementById('investorIndex').value = index;
+            document.getElementById('investorName').value = inv.name;
+            document.getElementById('investorPhone').value = inv.phone || '';
+            document.getElementById('investorAddress').value = inv.address || '';
+            document.getElementById('investorAmount').value = inv.amount;
+            document.getElementById('investorModalTitle').innerText = 'تعديل بيانات المستثمر';
+            openModal('investorModal');
+        }
+
+        function saveSettingsChanges() {
+            portfolioName = document.getElementById('settingPortfolioName').value;
+            syncAndSaveDataToCloud();
+            alert('تم حفظ إعدادات المنصة ومزامنتها!');
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.className = "nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200 font-medium transition";
+            });
+            
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.className = "nav-item flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium border border-emerald-500/20 transition";
+            }
+        }
+
+        function setupMobileMenu() {
+            const openBtn = document.getElementById('openMobileNav');
+            const closeBtn = document.getElementById('closeMobileNav');
+            const sidebar = document.getElementById('sidebar');
+
+            if (openBtn && sidebar) {
+                openBtn.addEventListener('click', () => sidebar.classList.remove('-translate-x-full'));
+            }
+            if (closeBtn && sidebar) {
+                closeBtn.addEventListener('click', () => sidebar.classList.add('-translate-x-full'));
+            }
+        }
+
+        function exportTableToCSV() {
+            let csv = "\uFEFFاسم المستثمر,الجوال,العنوان,رأس المال,النسبة,الأرباح,المسحوبات,المتاح للسحب,الخصومات,الصافي\n";
+            const baseCapital = getTotalBaseCapital();
+            
+            investors.forEach(inv => {
+                const percent = baseCapital > 0 ? ((inv.amount / baseCapital) * 100).toFixed(2) : 0;
+                const available = Math.max(0, inv.profitAccumulated - inv.withdrawnProfits);
+                const net = inv.amount + inv.profitAccumulated - inv.lossAccumulated - inv.withdrawnProfits;
+                
+                csv += `"${inv.name}","${inv.phone || ''}","${inv.address || ''}",${inv.amount},${percent}%,${inv.profitAccumulated.toFixed(2)},${inv.withdrawnProfits.toFixed(2)},${available.toFixed(2)},${inv.lossAccumulated.toFixed(2)},${net.toFixed(2)}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `Mahafiz_Admin_Report.csv`);
+            link.click();
+        }
+    </script>
+</body>
+</html>
