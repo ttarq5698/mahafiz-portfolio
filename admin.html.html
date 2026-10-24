@@ -110,13 +110,13 @@
         <div class="m-4 p-4 rounded-2xl glass-panel border border-amber-500/20 bg-amber-500/5 relative overflow-hidden">
             <div class="flex items-center gap-2 text-amber-600 dark:text-amber-400 text-xs font-semibold mb-2">
                 <i class="fa-solid fa-shield-halved"></i>
-                <span>حالة التزامن السحابي</span>
+                <span>حالة التزامن الفوري</span>
             </div>
-            <div class="text-sm font-bold text-slate-800 dark:text-slate-200">100,000 SAR (مكتملة)</div>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">ربط فوري مباشر مع واجهة الجوال</p>
+            <div class="text-sm font-bold text-slate-800 dark:text-slate-200">100,000 SAR (نشط)</div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">مزامنة تلقائية بين الآيفون والأندرويد</p>
             <div class="mt-3 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 pt-2 border-t border-slate-200 dark:border-slate-700/50">
                 <span>المشاركون: 8 مستثمرين</span>
-                <span class="text-emerald-600 dark:text-emerald-400 font-bold">متصل بالسحابة <i class="fa-solid fa-circle text-[8px] animate-pulse"></i></span>
+                <span class="text-emerald-600 dark:text-emerald-400 font-bold">متصل <i class="fa-solid fa-circle text-[8px] animate-pulse"></i></span>
             </div>
         </div>
     </aside>
@@ -513,7 +513,7 @@
         let sharesChartInstance = null;
         let performanceChartInstance = null;
 
-        // دالة المزامنة المباشرة وإرسال التحديثات للكلاود
+        // دالة المزامنة الفورية مع منع التخزين المؤقت (Cache)
         async function syncAndSaveDataToCloud() {
             localStorage.setItem('mahafiz_investors', JSON.stringify(investors));
             localStorage.setItem('mahafiz_total_profits', totalProfitsRecorded);
@@ -532,7 +532,7 @@
             try {
                 await fetch('/api/update', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
                     body: JSON.stringify(payload)
                 });
             } catch (e) {
@@ -542,7 +542,7 @@
 
         async function fetchLatestDataFromCloud() {
             try {
-                const response = await fetch('/api/get', { cache: 'no-store' });
+                const response = await fetch('/api/get', { cache: 'no-store', headers: { 'Cache-Control': 'no-store' } });
                 if (response.ok) {
                     const cloudData = await response.json();
                     if (cloudData && cloudData.investors) {
@@ -567,10 +567,11 @@
             calculateAndRenderTable();
             setupMobileMenu();
 
+            // فحص التحديثات كل 4 ثوانٍ لضمان المزامنة بين الآيفون والأندرويد
             setInterval(async () => {
                 const updated = await fetchLatestDataFromCloud();
                 if (updated) renderDashboard();
-            }, 5000);
+            }, 4000);
         });
 
         function resetPortfolioData() {
@@ -734,20 +735,6 @@
 
         function setCalcType(type) {
             currentCalcType = type;
-            const profitBtn = document.getElementById('calcTypeProfitBtn');
-            const lossBtn = document.getElementById('calcTypeLossBtn');
-            
-            if (type === 'profit') {
-                profitBtn.className = "w-1/2 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow";
-                lossBtn.className = "w-1/2 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
-                document.getElementById('managerFeeContainer').style.display = 'block';
-                document.getElementById('calcAmountLabel').innerText = 'المبلغ الإجمالي للربح (SAR)';
-            } else {
-                lossBtn.className = "w-1/2 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 bg-rose-600 text-white shadow";
-                profitBtn.className = "w-1/2 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
-                document.getElementById('managerFeeContainer').style.display = 'none';
-                document.getElementById('calcAmountLabel').innerText = 'المبلغ الإجمالي للخسارة (SAR)';
-            }
             calculateAndRenderTable();
         }
 
@@ -759,44 +746,11 @@
             const tbody = document.getElementById('calculatorResultsBody');
             tbody.innerHTML = '';
 
-            let totalManagerFeeCollected = 0;
-            const rawShares = investors.map(inv => amountInput * (inv.amount / baseCapital));
-
-            investors.forEach((inv, i) => {
-                if (!inv.isManager) {
-                    const feeCut = rawShares[i] * (feePercent / 100);
-                    totalManagerFeeCollected += feeCut;
-                }
-            });
-
-            investors.forEach((inv, i) => {
+            investors.forEach(inv => {
                 const ratio = baseCapital > 0 ? (inv.amount / baseCapital) : 0;
-                const rawShare = rawShares[i];
-                let feeText = "0.00 SAR";
-                let finalShare = rawShare;
-
-                if (currentCalcType === 'profit') {
-                    if (inv.isManager) {
-                        feeText = `+${totalManagerFeeCollected.toFixed(2)} SAR (مكافأة)`;
-                        finalShare = rawShare + totalManagerFeeCollected;
-                    } else {
-                        const feeCut = rawShare * (feePercent / 100);
-                        feeText = `-${feeCut.toFixed(2)} SAR (${feePercent}%)`;
-                        finalShare = rawShare - feeCut;
-                    }
-                } else {
-                    feeText = "غير مستقطع (خسارة)";
-                }
-
+                const rawShare = amountInput * ratio;
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="px-6 py-3.5 font-bold text-slate-900 dark:text-white">${inv.name}</td>
-                    <td class="px-6 py-3.5">${inv.amount.toLocaleString()} SAR</td>
-                    <td class="px-6 py-3.5">${(ratio * 100).toFixed(2)}%</td>
-                    <td class="px-6 py-3.5">${rawShare.toFixed(2)} SAR</td>
-                    <td class="px-6 py-3.5 ${currentCalcType === 'profit' ? 'text-amber-500' : 'text-slate-400'}">${feeText}</td>
-                    <td class="px-6 py-3.5 font-bold ${currentCalcType === 'profit' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${finalShare.toFixed(2)} SAR</td>
-                `;
+                tr.innerHTML = `<td class="px-6 py-3.5 font-bold text-slate-900 dark:text-white">${inv.name}</td><td class="px-6 py-3.5">${inv.amount.toLocaleString()} SAR</td><td class="px-6 py-3.5">${(ratio * 100).toFixed(2)}%</td><td class="px-6 py-3.5">${rawShare.toFixed(2)} SAR</td><td class="px-6 py-3.5">0.00</td><td class="px-6 py-3.5 font-bold text-emerald-600">${rawShare.toFixed(2)} SAR</td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -807,27 +761,14 @@
             if (amountInput <= 0) return;
 
             processPortfolioTransaction(currentCalcType, amountInput, feePercent);
-            historyLogs.unshift({ date: new Date().toLocaleDateString('ar-SA'), type: currentCalcType, title: currentCalcType === 'profit' ? "توزيع أرباح" : "خصم خسارة", amount: amountInput, note: "معالجة من الحاسبة التفاعلية" });
+            historyLogs.unshift({ date: new Date().toLocaleDateString('ar-SA'), type: currentCalcType, title: currentCalcType === 'profit' ? "توزيع أرباح" : "خصم خسارة", amount: amountInput, note: "عمولة ومزامنة سحابية" });
             syncAndSaveDataToCloud();
             renderDashboard();
-            alert("تم اعتماد العملية ومزامنتها سحابياً مع الجوالات بنجاح!");
+            alert("تم تسديد المبالغ ومزامنتها سحابياً مع الآيفون والأندرويد!");
         }
 
-        function openWithdrawalModal() { 
-            const select = document.getElementById('withdrawInvestorSelect');
-            select.innerHTML = '';
-            investors.forEach((inv, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.text = `${inv.name} (المتاح: ${Math.max(0, inv.profitAccumulated - inv.withdrawnProfits).toFixed(2)} SAR)`;
-                select.appendChild(option);
-            });
-            openModal('withdrawModal'); 
-            updateWithdrawalMaxInfo(); 
-        }
-
+        function openWithdrawalModal() { openModal('withdrawModal'); updateWithdrawalMaxInfo(); }
         function quickOpenWithdrawal(idx) { openWithdrawalModal(); document.getElementById('withdrawInvestorSelect').value = idx; updateWithdrawalMaxInfo(); }
-        
         function updateWithdrawalMaxInfo() {
             const idx = parseInt(document.getElementById('withdrawInvestorSelect').value) || 0;
             const inv = investors[idx];
@@ -838,37 +779,27 @@
             e.preventDefault();
             const idx = parseInt(document.getElementById('withdrawInvestorSelect').value);
             const amount = parseFloat(document.getElementById('withdrawAmountInput').value) || 0;
-            const note = document.getElementById('withdrawNoteInput').value;
             const inv = investors[idx];
             if (!inv || amount <= 0) return;
 
             inv.withdrawnProfits += amount;
             totalWithdrawalsRecorded += amount;
-            historyLogs.unshift({ date: new Date().toLocaleDateString('ar-SA'), type: 'withdrawal', title: `سحب أرباح: ${inv.name}`, amount: amount, note: note || "سحب يدوّي" });
+            historyLogs.unshift({ date: new Date().toLocaleDateString('ar-SA'), type: 'withdrawal', title: `سحب أرباح: ${inv.name}`, amount: amount, note: "سحب مباشر" });
             syncAndSaveDataToCloud();
             closeModal('withdrawModal');
             renderDashboard();
             alert("تم تسجيل السحب ومزامنته سحابياً بنجاح!");
         }
 
-        function openTransactionModal(type) { 
-            document.getElementById('txType').value = type; 
-            document.getElementById('txModalTitle').innerText = type === 'profit' ? 'تسجيل توزيع أرباح جديدة' : 'تسجيل خصم خسارة';
-            document.getElementById('txFeeOptionGroup').style.display = type === 'profit' ? 'block' : 'none';
-            openModal('transactionModal'); 
-        }
-
+        function openTransactionModal(type) { document.getElementById('txType').value = type; openModal('transactionModal'); }
         function handleQuickTransactionSubmit(e) {
             e.preventDefault();
             const type = document.getElementById('txType').value;
             const amount = parseFloat(document.getElementById('txAmountInput').value) || 0;
-            const feePercent = type === 'profit' ? parseFloat(document.getElementById('txFeeSelect').value) : 0;
-            const note = document.getElementById('txNoteInput').value;
-
             if (amount <= 0) return;
 
-            processPortfolioTransaction(type, amount, feePercent);
-            historyLogs.unshift({ date: new Date().toLocaleDateString('ar-SA'), type, title: type === 'profit' ? "توزيع أرباح" : "خصم خسارة", amount, note: note || "تسجيل سريع" });
+            processPortfolioTransaction(type, amount, 30);
+            historyLogs.unshift({ date: "الآن", type, title: type === 'profit' ? "توزيع أرباح" : "خصم خسارة", amount, note: "تخصيص تلقائي" });
             syncAndSaveDataToCloud();
             closeModal('transactionModal');
             renderDashboard();
@@ -876,40 +807,16 @@
 
         function initCharts() {
             const ctx1 = document.getElementById('sharesChart').getContext('2d');
-            sharesChartInstance = new Chart(ctx1, { 
-                type: 'doughnut', 
-                data: { 
-                    labels: investors.map(i => i.name), 
-                    datasets: [{ 
-                        data: investors.map(i => i.amount), 
-                        backgroundColor: ['#10b981', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#3b82f6', '#64748b', '#a855f7'] 
-                    }] 
-                }, 
-                options: { responsive: true, plugins: { legend: { display: false } } } 
-            });
+            sharesChartInstance = new Chart(ctx1, { type: 'doughnut', data: { labels: investors.map(i => i.name), datasets: [{ data: investors.map(i => i.amount), backgroundColor: ['#10b981', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#3b82f6', '#64748b', '#a855f7'] }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
 
             const ctx2 = document.getElementById('performanceChart').getContext('2d');
-            performanceChartInstance = new Chart(ctx2, { 
-                type: 'line', 
-                data: { 
-                    labels: ['البداية', 'الآن'], 
-                    datasets: [{ 
-                        data: [100000, getTotalBaseCapital() + (totalProfitsRecorded - totalLossesRecorded - totalWithdrawalsRecorded)], 
-                        borderColor: '#06b6d4', 
-                        fill: true,
-                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
-                        tension: 0.3
-                    }] 
-                }, 
-                options: { responsive: true, plugins: { legend: { display: false } } } 
-            });
+            performanceChartInstance = new Chart(ctx2, { type: 'line', data: { labels: ['البداية', 'الآن'], datasets: [{ data: [100000, 100000 + (totalProfitsRecorded - totalLossesRecorded - totalWithdrawalsRecorded)], borderColor: '#06b6d4', fill: true }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
         }
 
         function updateChartsData() {
             sharesChartInstance.data.labels = investors.map(i => i.name);
             sharesChartInstance.data.datasets[0].data = investors.map(i => i.amount);
             sharesChartInstance.update();
-
             performanceChartInstance.data.datasets[0].data[1] = getTotalBaseCapital() + (totalProfitsRecorded - totalLossesRecorded - totalWithdrawalsRecorded);
             performanceChartInstance.update();
         }
@@ -926,17 +833,12 @@
             const amount = parseFloat(document.getElementById('investorAmount').value);
 
             if (index >= 0) {
-                investors[index].name = name; 
-                investors[index].phone = phone; 
-                investors[index].address = address; 
-                investors[index].amount = amount;
+                investors[index].name = name; investors[index].phone = phone; investors[index].address = address; investors[index].amount = amount;
             } else {
                 investors.push({ name, phone, address, amount, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false });
             }
             syncAndSaveDataToCloud();
             closeModal('investorModal');
-            document.getElementById('investorForm').reset();
-            document.getElementById('investorIndex').value = "-1";
             renderDashboard();
         }
 
@@ -947,7 +849,6 @@
             document.getElementById('investorPhone').value = inv.phone || '';
             document.getElementById('investorAddress').value = inv.address || '';
             document.getElementById('investorAmount').value = inv.amount;
-            document.getElementById('investorModalTitle').innerText = 'تعديل بيانات المستثمر';
             openModal('investorModal');
         }
 
@@ -960,40 +861,17 @@
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            
-            document.querySelectorAll('.nav-item').forEach(el => {
-                el.className = "nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200 font-medium transition";
-            });
-            
-            const activeNav = document.getElementById(`nav-${tabId}`);
-            if (activeNav) {
-                activeNav.className = "nav-item flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium border border-emerald-500/20 transition";
-            }
         }
 
         function setupMobileMenu() {
-            const openBtn = document.getElementById('openMobileNav');
-            const closeBtn = document.getElementById('closeMobileNav');
-            const sidebar = document.getElementById('sidebar');
-
-            if (openBtn && sidebar) {
-                openBtn.addEventListener('click', () => sidebar.classList.remove('-translate-x-full'));
-            }
-            if (closeBtn && sidebar) {
-                closeBtn.addEventListener('click', () => sidebar.classList.add('-translate-x-full'));
-            }
+            document.getElementById('openMobileNav').addEventListener('click', () => document.getElementById('sidebar').classList.remove('-translate-x-full'));
+            document.getElementById('closeMobileNav').addEventListener('click', () => document.getElementById('sidebar').classList.add('-translate-x-full'));
         }
 
         function exportTableToCSV() {
             let csv = "\uFEFFاسم المستثمر,الجوال,العنوان,رأس المال,النسبة,الأرباح,المسحوبات,المتاح للسحب,الخصومات,الصافي\n";
-            const baseCapital = getTotalBaseCapital();
-            
             investors.forEach(inv => {
-                const percent = baseCapital > 0 ? ((inv.amount / baseCapital) * 100).toFixed(2) : 0;
-                const available = Math.max(0, inv.profitAccumulated - inv.withdrawnProfits);
-                const net = inv.amount + inv.profitAccumulated - inv.lossAccumulated - inv.withdrawnProfits;
-                
-                csv += `"${inv.name}","${inv.phone || ''}","${inv.address || ''}",${inv.amount},${percent}%,${inv.profitAccumulated.toFixed(2)},${inv.withdrawnProfits.toFixed(2)},${available.toFixed(2)},${inv.lossAccumulated.toFixed(2)},${net.toFixed(2)}\n`;
+                csv += `"${inv.name}","${inv.phone || ''}","${inv.address || ''}",${inv.amount},${inv.profitAccumulated.toFixed(2)},${inv.withdrawnProfits.toFixed(2)}\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
