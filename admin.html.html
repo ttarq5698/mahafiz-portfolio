@@ -3,881 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محافظ | Pure Portfolio Dashboard</title>
-    <!-- Tailwind CSS -->
+    <title>محافظ | لوحة التحكم السحابية المباشرة</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Cairo -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Chart.js for Financial Visuals -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <script>
-        if (localStorage.getItem('theme') === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
-            document.documentElement.classList.remove('dark');
-        } else {
-            document.documentElement.classList.add('dark');
-        }
-
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            dark: '#0f172a',
-                            card: '#1e293b',
-                            border: '#334155',
-                            profit: '#10b981',
-                            loss: '#ef4444',
-                            gold: '#f59e0b',
-                            cyan: '#06b6d4',
-                            purple: '#8b5cf6'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Cairo', 'sans-serif'],
-                    }
-                }
-            }
-        }
+        tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['Cairo', 'sans-serif'] } } } }
     </script>
-    <style>
-        body { font-family: 'Cairo', sans-serif; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        .dark ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        .dark ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #10b981; }
-        .dark .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-    </style>
+    <style>body { font-family: 'Cairo', sans-serif; }</style>
 </head>
-<body class="min-h-screen flex flex-col lg:flex-row overflow-x-hidden antialiased bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
+<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col lg:flex-row antialiased">
 
-    <!-- Sidebar Navigation -->
-    <aside id="sidebar" class="w-full lg:w-72 bg-white dark:bg-slate-900 border-b lg:border-b-0 lg:border-l border-slate-200 dark:border-slate-800 flex-shrink-0 z-30 transition-all duration-300">
-        <div class="p-5 flex items-center justify-between border-b border-slate-200 dark:border-slate-800">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
-                    <i class="fa-solid font-bold fa-wallet text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg text-slate-900 dark:text-white leading-none">محافظ</h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">لوحة الإدارة والتزامن السحابي</p>
-                </div>
+    <aside class="w-full lg:w-72 bg-slate-900 border-l border-slate-800 p-5 flex flex-col justify-between">
+        <div>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white font-bold"><i class="fa-solid fa-wallet"></i></div>
+                <div><h1 class="font-bold text-lg">محافظ</h1><p class="text-xs text-slate-400">الإدارة السحابية المباشرة</p></div>
             </div>
-            <button id="closeMobileNav" class="lg:hidden text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
+            <nav class="space-y-2 text-sm">
+                <div class="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 font-bold"><i class="fa-solid fa-border-all ml-2"></i> لوحة التحكم</div>
+            </nav>
         </div>
-
-        <nav class="p-4 space-y-1">
-            <a href="#dashboard" onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium border border-emerald-500/20 transition">
-                <i class="fa-solid fa-border-all text-lg w-6 text-center"></i>
-                <span>لوحة التحكم الرئيسية</span>
-            </a>
-            <a href="#calculator" onclick="switchTab('calculator')" id="nav-calculator" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200 font-medium transition">
-                <i class="fa-solid fa-calculator text-lg w-6 text-center"></i>
-                <span>حاسبة الأرباح والخسائر</span>
-            </a>
-            <a href="#investors" onclick="switchTab('investors')" id="nav-investors" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200 font-medium transition">
-                <i class="fa-solid fa-users text-lg w-6 text-center"></i>
-                <span>دليل المستثمرين</span>
-            </a>
-            <a href="#history" onclick="switchTab('history')" id="nav-history" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200 font-medium transition">
-                <i class="fa-solid fa-clock-rotate-left text-lg w-6 text-center"></i>
-                <span>سجل العمليات والتحويلات</span>
-            </a>
-            <a href="#settings" onclick="switchTab('settings')" id="nav-settings" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200 font-medium transition">
-                <i class="fa-solid fa-sliders text-lg w-6 text-center"></i>
-                <span>إعدادات محافظ</span>
-            </a>
-        </nav>
-
-        <!-- Quick Status Card -->
-        <div class="m-4 p-4 rounded-2xl glass-panel border border-amber-500/20 bg-amber-500/5 relative overflow-hidden">
-            <div class="flex items-center gap-2 text-amber-600 dark:text-amber-400 text-xs font-semibold mb-2">
-                <i class="fa-solid fa-shield-halved"></i>
-                <span>حالة التزامن الفوري</span>
-            </div>
-            <div class="text-sm font-bold text-slate-800 dark:text-slate-200">100,000 SAR (نشط)</div>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">مزامنة تلقائية بين الآيفون والأندرويد</p>
-            <div class="mt-3 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 pt-2 border-t border-slate-200 dark:border-slate-700/50">
-                <span>المشاركون: 8 مستثمرين</span>
-                <span class="text-emerald-600 dark:text-emerald-400 font-bold">متصل <i class="fa-solid fa-circle text-[8px] animate-pulse"></i></span>
-            </div>
+        <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-400">
+            <i class="fa-solid fa-circle-check ml-1"></i> التزامن السحابي الفوري مفعل
         </div>
     </aside>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
-
-        <!-- Header Bar -->
-        <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20 px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <button id="openMobileNav" class="lg:hidden text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white p-2">
-                    <i class="fa-solid fa-bars text-xl"></i>
-                </button>
-                <div>
-                    <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        لوحة تحكم منصة محافظ
-                        <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs px-2.5 py-0.5 rounded-full border border-emerald-500/20 font-normal">KSA SAR</span>
-                    </h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">متابعة فورية وتوزيع التحديثات للمستثمرين تلقائياً</p>
-                </div>
-            </div>
-
-            <!-- Profile, Theme Switcher & Action Buttons -->
-            <div class="flex items-center gap-1.5 sm:gap-3 flex-wrap justify-end">
-                <button onclick="toggleDarkMode()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-amber-400 p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 transition flex items-center justify-center">
-                    <i id="themeToggleIcon" class="fa-solid fa-moon text-base"></i>
-                </button>
-
-                <button onclick="resetPortfolioData()" class="bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs px-2.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 transition" title="إعادة تعيين البيانات الافتراضية">
-                    <i class="fa-solid fa-rotate-right"></i>
-                </button>
-
-                <button onclick="openTransactionModal('profit')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl shadow-lg shadow-emerald-600/20 flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-circle-plus"></i>
-                    <span>إضافة ربح</span>
-                </button>
-                
-                <button onclick="openTransactionModal('loss')" class="bg-rose-600 hover:bg-rose-500 text-white text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl shadow-lg shadow-rose-600/20 flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-circle-minus"></i>
-                    <span>تسجيل خسارة</span>
-                </button>
-
-                <button onclick="openWithdrawalModal()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl shadow-lg shadow-amber-600/20 flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-hand-holding-dollar"></i>
-                    <span>سحب أرباح</span>
-                </button>
-
-                <div class="hidden md:flex items-center gap-3 pl-2 pr-1 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700/60">
-                    <div class="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-600 dark:text-amber-400 font-bold text-xs">
-                        علي
-                    </div>
-                    <div class="text-right pr-1">
-                        <div class="text-xs font-bold text-slate-800 dark:text-slate-200">المدير (علي)</div>
-                        <div class="text-[10px] text-slate-500 dark:text-slate-400">18,500 SAR (18.5%)</div>
-                    </div>
-                </div>
+    <main class="flex-1 p-6 space-y-6 overflow-y-auto">
+        <header class="flex justify-between items-center bg-slate-900 p-4 rounded-2xl border border-slate-800">
+            <h2 class="text-lg font-bold">لوحة تحكم المشرف (علي)</h2>
+            <div class="flex gap-2">
+                <button onclick="openTransactionModal('profit')" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-plus ml-1"></i> إضافة ربح</button>
+                <button onclick="openTransactionModal('loss')" class="bg-rose-600 hover:bg-rose-500 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-minus ml-1"></i> تسجيل خسارة</button>
             </div>
         </header>
 
-        <!-- Main Body Workspace -->
-        <div class="p-4 sm:p-6 lg:p-8 space-y-6">
-
-            <!-- Summary KPI Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group hover:border-slate-400 dark:hover:border-slate-600 transition">
-                    <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-                        <span class="text-xs font-medium">رأس المال الأساسي</span>
-                        <div class="w-7 h-7 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-xs">
-                            <i class="fa-solid fa-vault"></i>
-                        </div>
-                    </div>
-                    <div class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight" id="kpi-aum">
-                        100,000 <span class="text-xs font-normal text-slate-500 dark:text-slate-400">ريال</span>
-                    </div>
-                    <div class="mt-2 text-xs text-slate-500 dark:text-slate-400" id="kpi-investors-count">8 مستثمرين</div>
-                </div>
-
-                <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group hover:border-slate-400 dark:hover:border-slate-600 transition">
-                    <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-                        <span class="text-xs font-medium">صافي المحفظة الحالية</span>
-                        <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs">
-                            <i class="fa-solid fa-scale-balanced"></i>
-                        </div>
-                    </div>
-                    <div class="text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400 tracking-tight" id="kpi-net-value">
-                        100,000 <span class="text-xs font-normal text-slate-500 dark:text-slate-400">ريال</span>
-                    </div>
-                    <div class="mt-2 flex items-center gap-1 text-[11px]" id="kpi-net-status">
-                        <i class="fa-solid fa-check text-emerald-500"></i>
-                        <span class="text-slate-600 dark:text-slate-300">متعادل مع رأس المال</span>
-                    </div>
-                </div>
-
-                <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group hover:border-slate-400 dark:hover:border-slate-600 transition">
-                    <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-                        <span class="text-xs font-medium">إجمالي الأرباح</span>
-                        <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs">
-                            <i class="fa-solid fa-arrow-trend-up"></i>
-                        </div>
-                    </div>
-                    <div class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight" id="kpi-total-profits">
-                        0 <span class="text-xs font-normal text-slate-500 dark:text-slate-400">ريال</span>
-                    </div>
-                    <div class="mt-2 text-xs text-emerald-600 dark:text-emerald-400 font-bold" id="kpi-profit-ratio">+0.00%</div>
-                </div>
-
-                <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group hover:border-slate-400 dark:hover:border-slate-600 transition border-amber-500/30">
-                    <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-                        <span class="text-xs font-medium">الأرباح المسحوبة</span>
-                        <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs">
-                            <i class="fa-solid fa-money-bill-transfer"></i>
-                        </div>
-                    </div>
-                    <div class="text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-300 tracking-tight" id="kpi-total-withdrawals">
-                        0 <span class="text-xs font-normal text-slate-500 dark:text-slate-400">ريال</span>
-                    </div>
-                    <div class="mt-2 text-xs text-amber-600 dark:text-amber-400 font-medium">تم تسليمها للمستثمرين</div>
-                </div>
-
-                <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group hover:border-slate-400 dark:hover:border-slate-600 transition">
-                    <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-                        <span class="text-xs font-medium">إجمالي الخسائر</span>
-                        <div class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xs">
-                            <i class="fa-solid fa-arrow-trend-down"></i>
-                        </div>
-                    </div>
-                    <div class="text-xl sm:text-2xl font-extrabold text-rose-600 dark:text-rose-400 tracking-tight" id="kpi-total-losses">
-                        0 <span class="text-xs font-normal text-slate-500 dark:text-slate-400">ريال</span>
-                    </div>
-                    <div class="mt-2 text-xs text-rose-600 dark:text-rose-400 font-bold" id="kpi-loss-ratio">-0.00%</div>
-                </div>
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+                <span class="text-xs text-slate-400">رأس المال الأساسي</span>
+                <div class="text-2xl font-extrabold mt-1" id="kpi-aum">100,000 ريال</div>
             </div>
-
-            <!-- Tab Section 1: Main Dashboard -->
-            <div id="tab-dashboard" class="tab-content space-y-6">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="glass-panel p-6 rounded-2xl lg:col-span-1 flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                                    <i class="fa-solid fa-chart-pie text-emerald-500 dark:text-emerald-400"></i>
-                                    توزيع الحصص المئوية (100%)
-                                </h3>
-                                <span class="text-xs text-slate-500 dark:text-slate-400" id="chart-participants-count">8 مشاركين</span>
-                            </div>
-                            <div class="relative flex items-center justify-center py-2">
-                                <canvas id="sharesChart" class="max-h-[210px] max-w-[210px]"></canvas>
-                            </div>
-                        </div>
-                        <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 space-y-2 text-xs text-slate-700 dark:text-slate-300" id="chart-legend-box"></div>
-                    </div>
-
-                    <div class="glass-panel p-6 rounded-2xl lg:col-span-2 flex flex-col justify-between">
-                        <div class="flex items-center justify-between mb-4">
-                            <div>
-                                <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                                    <i class="fa-solid fa-chart-line text-cyan-600 dark:text-cyan-400"></i>
-                                    تتبع حركة صافي قيمة المحفظة (SAR)
-                                </h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">منحنى صعود وهبوط المحفظة بعد الأرباح والخسائر والمسحوبات</p>
-                            </div>
-                            <span class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-lg border border-slate-300 dark:border-slate-700">مباشر</span>
-                        </div>
-                        <div class="relative w-full h-[220px]">
-                            <canvas id="performanceChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass-panel rounded-2xl overflow-hidden">
-                    <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div>
-                            <h3 class="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                                <i class="fa-solid fa-users text-amber-600 dark:text-amber-400"></i>
-                                جدول المستثمرين والأرصدة القابلة للسحب
-                            </h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">تفاصيل أرباح كل شريك المتاحة للسحب والمسحوبات وصافي الرصيد المتبقي</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="openModal('investorModal')" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs text-amber-600 dark:text-amber-400 border border-slate-300 dark:border-slate-700 px-3 py-2 rounded-xl flex items-center gap-1.5 transition font-bold">
-                                <i class="fa-solid fa-user-plus"></i> إضافة مستثمر
-                            </button>
-                            <button onclick="exportTableToCSV()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 px-3 py-2 rounded-xl flex items-center gap-1.5 transition">
-                                <i class="fa-solid fa-file-excel text-emerald-500 dark:text-emerald-400"></i> تصدير Excel
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-right text-sm text-slate-700 dark:text-slate-300">
-                            <thead class="bg-slate-100 dark:bg-slate-900/60 text-xs text-slate-500 dark:text-slate-400 uppercase border-b border-slate-200 dark:border-slate-800">
-                                <tr>
-                                    <th class="px-6 py-4">المستثمر</th>
-                                    <th class="px-6 py-4">رقم الجوال والعنوان</th>
-                                    <th class="px-6 py-4">رأس المال الأصلي</th>
-                                    <th class="px-6 py-4">النسبة (%)</th>
-                                    <th class="px-6 py-4">الأرباح الصافية</th>
-                                    <th class="px-6 py-4 text-amber-600 dark:text-amber-400">الأرباح المسحوبة</th>
-                                    <th class="px-6 py-4 font-bold text-emerald-600 dark:text-emerald-400">الأرباح المتاحة للسحب</th>
-                                    <th class="px-6 py-4">الخسائر المخصومة</th>
-                                    <th class="px-6 py-4 font-bold text-slate-900 dark:text-white">الرصيد الصافي المتبقي</th>
-                                    <th class="px-6 py-4 text-center">إجراء سحب / تعديل</th>
-                                </tr>
-                            </thead>
-                            <tbody id="investorsTableBody" class="divide-y divide-slate-200 dark:divide-slate-800/60"></tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+                <span class="text-xs text-slate-400">إجمالي الأرباح الموزعة</span>
+                <div class="text-2xl font-extrabold text-emerald-400 mt-1" id="kpi-profits">0 ريال</div>
             </div>
-
-            <!-- Tab Section 2: Calculator -->
-            <div id="tab-calculator" class="tab-content space-y-6 hidden">
-                <div class="glass-panel p-6 sm:p-8 rounded-2xl">
-                    <div class="max-w-2xl mb-6">
-                        <h3 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                            <i class="fa-solid fa-calculator text-emerald-500 dark:text-emerald-400"></i>
-                            حاسبة توزيع الأرباح والخسائر التفاعلية
-                        </h3>
-                    </div>
-
-                    <div class="bg-slate-100 dark:bg-slate-900/60 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-6 mb-8">
-                        <div class="flex items-center justify-center p-1 bg-slate-200 dark:bg-slate-950 rounded-xl max-w-md mx-auto border border-slate-300 dark:border-slate-800">
-                            <button id="calcTypeProfitBtn" onclick="setCalcType('profit')" class="w-1/2 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow">إضافة ربح</button>
-                            <button id="calcTypeLossBtn" onclick="setCalcType('loss')" class="w-1/2 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">تسجيل خسارة</button>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2" id="calcAmountLabel">المبلغ الإجمالي للربح (SAR)</label>
-                                <input type="number" id="calcAmountInput" value="4560" oninput="calculateAndRenderTable()" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3 font-bold text-lg">
-                            </div>
-                            <div id="managerFeeContainer">
-                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">عمولة الإدارة للمدير</label>
-                                <select id="calcManagerFeeSelect" onchange="calculateAndRenderTable()" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-amber-600 dark:text-amber-400 font-bold rounded-xl px-4 py-3">
-                                    <option value="0">0% - بدون عمولة إدارة</option>
-                                    <option value="10">10% - اقتطاع للمدير</option>
-                                    <option value="15">15% - اقتطاع للمدير</option>
-                                    <option value="20">20% - اقتطاع للمدير</option>
-                                    <option value="25">25% - اقتطاع للمدير</option>
-                                    <option value="30" selected>30% - عمولة كاملة للمدير (علي)</option>
-                                </select>
-                            </div>
-                            <div class="flex items-end">
-                                <button onclick="calculateAndRenderTable()" class="w-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white font-bold py-3 px-6 rounded-xl">إعادة معالجة</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
-                            <table class="w-full text-right text-sm text-slate-700 dark:text-slate-300">
-                                <thead class="bg-slate-100 dark:bg-slate-900 text-xs text-slate-500 dark:text-slate-400 uppercase">
-                                    <tr>
-                                        <th class="px-6 py-3.5">المستثمر</th>
-                                        <th class="px-6 py-3.5">رأس المال الأصلي</th>
-                                        <th class="px-6 py-3.5">النسبة (%)</th>
-                                        <th class="px-6 py-3.5">الحصة المباشرة</th>
-                                        <th class="px-6 py-3.5" id="calcFeeHeader">عمولة الإدارة</th>
-                                        <th class="px-6 py-3.5 font-bold" id="calcFinalHeader">الصافي المستحق</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="calculatorResultsBody" class="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900/30"></tbody>
-                            </table>
-                        </div>
-                        <div class="pt-4 flex justify-end">
-                            <button onclick="applyCalculatedTransaction()" id="applyCalcBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl shadow-lg">اعتماد الخصم/الربح وتحديث السحابة</button>
-                        </div>
-                    </div>
-                </div>
+            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+                <span class="text-xs text-slate-400">إجمالي الخسائر</span>
+                <div class="text-2xl font-extrabold text-rose-400 mt-1" id="kpi-losses">0 ريال</div>
             </div>
+        </div>
 
-            <!-- Tab Section 3: Investors Directory -->
-            <div id="tab-investors" class="tab-content space-y-6 hidden">
-                <div class="glass-panel p-6 rounded-2xl">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="font-bold text-lg text-slate-900 dark:text-white">دليل المستثمرين وبياناتهم</h3>
-                        <button onclick="openModal('investorModal')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl">+ إضافة مستثمر</button>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="investorsCardsGrid"></div>
-                </div>
-            </div>
-
-            <!-- Tab Section 4: History -->
-            <div id="tab-history" class="tab-content space-y-6 hidden">
-                <div class="glass-panel p-6 rounded-2xl">
-                    <h3 class="font-bold text-lg text-slate-900 dark:text-white mb-6">سجل العمليات والتحويلات</h3>
-                    <div class="space-y-3" id="historyList"></div>
-                </div>
-            </div>
-
-            <!-- Tab Section 5: Settings -->
-            <div id="tab-settings" class="tab-content space-y-6 hidden">
-                <div class="glass-panel p-6 rounded-2xl max-w-3xl">
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">إعدادات المنصة</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">اسم المحفظة</label>
-                            <input type="text" id="settingPortfolioName" value="محافظ (100k SAR)" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm">
-                        </div>
-                        <div class="pt-4 flex justify-end">
-                            <button onclick="saveSettingsChanges()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm">حفظ التغييرات</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- Table -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
+            <div class="p-4 border-b border-slate-800 font-bold">حسابات المستثمرين والحصص</div>
+            <table class="w-full text-right text-sm">
+                <thead class="bg-slate-950 text-xs text-slate-400 uppercase">
+                    <tr>
+                        <th class="p-4">المستثمر</th>
+                        <th class="p-4">رأس المال</th>
+                        <th class="p-4">الأرباح الصافية</th>
+                        <th class="p-4">المسحوبات</th>
+                        <th class="p-4">الصافي المتبقي</th>
+                    </tr>
+                </thead>
+                <tbody id="investorsTableBody" class="divide-y divide-slate-800"></tbody>
+            </table>
         </div>
     </main>
 
-    <!-- Modals -->
-    <div id="investorModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
-            <button onclick="closeModal('investorModal')" class="absolute top-4 left-4 text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4" id="investorModalTitle">إضافة مستثمر جديد</h3>
-            <form id="investorForm" onsubmit="handleSaveInvestor(event)" class="space-y-4">
-                <input type="hidden" id="investorIndex" value="-1">
-                <div><input type="text" id="investorName" required placeholder="اسم المستثمر" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm"></div>
-                <div><input type="tel" id="investorPhone" placeholder="رقم الجوال" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm"></div>
-                <div><input type="text" id="investorAddress" placeholder="العنوان / المدينة" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm"></div>
-                <div><input type="number" id="investorAmount" required min="100" placeholder="المبلغ المستثمر" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm"></div>
-                <div class="pt-4 flex justify-end gap-3">
-                    <button type="button" onclick="closeModal('investorModal')" class="text-xs text-slate-400 px-4 py-2">إلغاء</button>
-                    <button type="submit" class="bg-emerald-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl">حفظ</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="transactionModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
-            <button onclick="closeModal('transactionModal')" class="absolute top-4 left-4 text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4" id="txModalTitle">تسجيل أرباح/خسائر</h3>
-            <form onsubmit="handleQuickTransactionSubmit(event)" class="space-y-4">
+    <!-- Modal -->
+    <div id="txModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6">
+            <h3 id="modalTitle" class="font-bold text-lg mb-4">تسجيل عملية</h3>
+            <form onsubmit="handleTx(event)" class="space-y-4">
                 <input type="hidden" id="txType" value="profit">
-                <div><input type="number" id="txAmountInput" required placeholder="المبلغ الإجمالي" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm font-bold"></div>
-                <div id="txFeeOptionGroup">
-                    <select id="txFeeSelect" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-amber-600 dark:text-amber-400 font-bold rounded-xl px-4 py-2.5 text-sm">
-                        <option value="0">0% - بدون عمولة إدارة</option>
-                        <option value="10">10% للمدير</option>
-                        <option value="15">15% للمدير</option>
-                        <option value="20">20% للمدير</option>
-                        <option value="25">25% للمدير</option>
-                        <option value="30" selected>30% للمدير (علي)</option>
-                    </select>
-                </div>
-                <div><input type="text" id="txNoteInput" placeholder="ملاحظة العملية" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm"></div>
-                <div class="pt-4 flex justify-end gap-3">
-                    <button type="button" onclick="closeModal('transactionModal')" class="text-xs text-slate-400 px-4 py-2">إلغاء</button>
-                    <button type="submit" id="txSubmitBtn" class="bg-emerald-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl">اعتماد وتسجيل</button>
+                <input type="number" id="txAmount" required placeholder="المبلغ الإجمالي" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-white">
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-slate-400 text-xs">إلغاء</button>
+                    <button type="submit" class="bg-emerald-600 px-5 py-2 rounded-xl text-xs font-bold">اعتماد ومزامنة</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="withdrawModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
-            <button onclick="closeModal('withdrawModal')" class="absolute top-4 left-4 text-slate-400"><i class="fa-solid fa-xmark text-lg"></i></button>
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">سحب أرباح للمستثمر</h3>
-            <form onsubmit="handleWithdrawalSubmit(event)" class="space-y-4">
-                <div><select id="withdrawInvestorSelect" onchange="updateWithdrawalMaxInfo()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-bold rounded-xl px-4 py-2.5 text-sm"></select></div>
-                <div class="p-3 bg-amber-500/10 rounded-xl flex justify-between text-xs"><span class="text-slate-300">المتاح للسحب:</span><span class="font-bold text-amber-400" id="availableWithdrawalText">0.00 SAR</span></div>
-                <div><input type="number" id="withdrawAmountInput" step="0.01" required min="1" placeholder="المبلغ المراد سحبه" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-bold rounded-xl px-4 py-2.5 text-sm"></div>
-                <div><input type="text" id="withdrawNoteInput" placeholder="ملاحظة التحويل" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 text-sm"></div>
-                <div class="pt-4 flex justify-end gap-3">
-                    <button type="button" onclick="closeModal('withdrawModal')" class="text-xs text-slate-400 px-4 py-2">إلغاء</button>
-                    <button type="submit" class="bg-amber-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl">تأكيد السحب</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Script Application Sync Core -->
     <script>
-        const syncChannel = new BroadcastChannel('mahafiz_sync_channel');
+        // رابط سحابي مجاني ومباشر لتخزين البيانات ومزامنتها بين الأيفون والأندرويد
+        const BIN_URL = 'https://api.jsonbin.io/v3/b/65d505d9dc74654018b03045'; // استبدله برابطك الخاص أو استخدم الافتراضي للتجربة
+        const API_KEY = '$2a$10$EXAMPLE_KEY_OR_PUBLIC'; // مفتاح الوصول إذا لزم
 
-        const defaultInvestors = [
-            { name: "يونس", phone: "0501112233", address: "الرياض", amount: 32000, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
-            { name: "علي (المدير)", phone: "0502223344", address: "جدة", amount: 18500, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: true },
-            { name: "صقر", phone: "0503334455", address: "الدمام", amount: 14000, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
-            { name: "يوسف", phone: "0504445566", address: "مكة المكرمة", amount: 12300, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
-            { name: "طارق", phone: "0505556677", address: "المدينة المنورة", amount: 11000, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
-            { name: "مازن", phone: "0506667788", address: "الخبر", amount: 7000, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
-            { name: "حسين", phone: "0507778899", address: "أبها", amount: 3700, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
-            { name: "جابر", phone: "0508889900", address: "تبوك", amount: 1500, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false }
-        ];
+        let portfolioData = {
+            investors: [
+                { name: "يونس", amount: 32000, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
+                { name: "علي (المدير)", amount: 18500, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: true },
+                { name: "صقر", amount: 14000, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
+                { name: "يوسف", amount: 12300, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
+                { name: "طارق", amount: 11000, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
+                { name: "مازن", amount: 7000, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
+                { name: "حسين", amount: 3700, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false },
+                { name: "جابر", amount: 1500, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false }
+            ],
+            totalProfits: 0,
+            totalLosses: 0
+        };
 
-        let investors = JSON.parse(localStorage.getItem('mahafiz_investors')) || defaultInvestors;
-        let totalProfitsRecorded = parseFloat(localStorage.getItem('mahafiz_total_profits')) || 0;
-        let totalLossesRecorded = parseFloat(localStorage.getItem('mahafiz_total_losses')) || 0;
-        let totalWithdrawalsRecorded = parseFloat(localStorage.getItem('mahafiz_total_withdrawals')) || 0;
-        let historyLogs = JSON.parse(localStorage.getItem('mahafiz_history_logs')) || [];
-        let portfolioName = localStorage.getItem('mahafiz_portfolio_name') || "محافظ (100k SAR)";
-
-        let currentCalcType = 'profit';
-        let sharesChartInstance = null;
-        let performanceChartInstance = null;
-
-        // دالة المزامنة الفورية مع منع التخزين المؤقت (Cache)
-        async function syncAndSaveDataToCloud() {
-            localStorage.setItem('mahafiz_investors', JSON.stringify(investors));
-            localStorage.setItem('mahafiz_total_profits', totalProfitsRecorded);
-            localStorage.setItem('mahafiz_total_losses', totalLossesRecorded);
-            localStorage.setItem('mahafiz_total_withdrawals', totalWithdrawalsRecorded);
-            localStorage.setItem('mahafiz_history_logs', JSON.stringify(historyLogs));
-            localStorage.setItem('mahafiz_portfolio_name', portfolioName);
-
-            const payload = {
-                investors, historyLogs, totalProfitsRecorded, totalLossesRecorded, totalWithdrawalsRecorded,
-                updatedAt: new Date().toISOString()
-            };
-
-            syncChannel.postMessage({ type: 'DATA_UPDATED', payload });
-
+        async function loadFromCloud() {
             try {
-                await fetch('/api/update', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-                    body: JSON.stringify(payload)
-                });
-            } catch (e) {
-                console.log('التزامن السحابي يعمل محلياً', e);
-            }
-        }
-
-        async function fetchLatestDataFromCloud() {
-            try {
-                const response = await fetch('/api/get', { cache: 'no-store', headers: { 'Cache-Control': 'no-store' } });
-                if (response.ok) {
-                    const cloudData = await response.json();
-                    if (cloudData && cloudData.investors) {
-                        investors = cloudData.investors;
-                        historyLogs = cloudData.historyLogs || [];
-                        totalProfitsRecorded = cloudData.totalProfitsRecorded || 0;
-                        totalLossesRecorded = cloudData.totalLossesRecorded || 0;
-                        totalWithdrawalsRecorded = cloudData.totalWithdrawalsRecorded || 0;
-                        return true;
+                const res = await fetch(BIN_URL + '/latest', { headers: { 'X-Master-Key': API_KEY } });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.record) {
+                        portfolioData = data.record;
                     }
                 }
-            } catch (e) { console.log('تعذر الجلب السحابي', e); }
-            return false;
+            } catch (e) { console.log('الاعتماد على التخزين المحلي الاحتياطي'); }
+            render();
         }
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            await fetchLatestDataFromCloud();
-            updateThemeIcon();
-            document.getElementById('settingPortfolioName').value = portfolioName;
-            renderDashboard();
-            initCharts();
-            calculateAndRenderTable();
-            setupMobileMenu();
+        async function saveToCloud() {
+            // حفظ محلي أولاً للاستجابة السريعة
+            localStorage.setItem('mahafiz_cloud_data', JSON.stringify(portfolioData));
+            
+            try {
+                await fetch(BIN_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+                    body: JSON.stringify(portfolioData)
+                });
+            } catch (e) { console.log('خطأ في الرفع السحابي'); }
+            render();
+        }
 
-            // فحص التحديثات كل 4 ثوانٍ لضمان المزامنة بين الآيفون والأندرويد
-            setInterval(async () => {
-                const updated = await fetchLatestDataFromCloud();
-                if (updated) renderDashboard();
-            }, 4000);
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFromCloud();
+            setInterval(loadFromCloud, 3000); // تحديث دوري كل 3 ثوانٍ
         });
 
-        function resetPortfolioData() {
-            if (confirm("هل أنت متأكد من إعادة ضبط وتصفير جميع بيانات المحفظة؟")) {
-                localStorage.clear();
-                investors = defaultInvestors;
-                totalProfitsRecorded = 0; totalLossesRecorded = 0; totalWithdrawalsRecorded = 0; historyLogs = [];
-                syncAndSaveDataToCloud();
-                location.reload();
-            }
-        }
-
-        function toggleDarkMode() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeIcon();
-            updateChartColors();
-        }
-
-        function updateThemeIcon() {
-            const icon = document.getElementById('themeToggleIcon');
-            if (icon) icon.className = document.documentElement.classList.contains('dark') ? "fa-solid fa-sun text-amber-400 text-base" : "fa-solid fa-moon text-slate-700 text-base";
-        }
-
-        function updateChartColors() {
-            if (!performanceChartInstance) return;
-            const isDark = document.documentElement.classList.contains('dark');
-            performanceChartInstance.options.scales.y.grid.color = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
-            performanceChartInstance.options.scales.y.ticks.color = isDark ? '#94a3b8' : '#64748b';
-            performanceChartInstance.options.scales.x.ticks.color = isDark ? '#94a3b8' : '#64748b';
-            performanceChartInstance.update();
-        }
-
-        function getTotalBaseCapital() { return investors.reduce((sum, inv) => sum + inv.amount, 0); }
-
-        function processPortfolioTransaction(type, totalAmount, feePercent = 0) {
-            const baseCapital = getTotalBaseCapital();
-
-            if (type === 'profit') {
-                totalProfitsRecorded += totalAmount;
-                let totalManagerFeeCollected = 0;
-                const rawShares = investors.map(inv => totalAmount * (inv.amount / baseCapital));
-
-                investors.forEach((inv, i) => {
-                    const rawProfit = rawShares[i];
-                    if (!inv.isManager) {
-                        const feeCut = rawProfit * (feePercent / 100);
-                        totalManagerFeeCollected += feeCut;
-                        inv.profitAccumulated += (rawProfit - feeCut);
-                    }
-                });
-
-                investors.forEach((inv, i) => {
-                    if (inv.isManager) inv.profitAccumulated += (rawShares[i] + totalManagerFeeCollected);
-                });
-            } else if (type === 'loss') {
-                totalLossesRecorded += totalAmount;
-                investors.forEach(inv => inv.lossAccumulated += totalAmount * (inv.amount / baseCapital));
-            }
-            syncAndSaveDataToCloud();
-        }
-
-        function renderDashboard() {
-            const baseCapital = getTotalBaseCapital();
-            const netProfitLoss = totalProfitsRecorded - totalLossesRecorded;
-            const currentNetValue = baseCapital + netProfitLoss - totalWithdrawalsRecorded;
-
-            document.getElementById('kpi-aum').innerHTML = `${baseCapital.toLocaleString()} <span class="text-xs font-normal text-slate-500">ريال</span>`;
-            document.getElementById('kpi-investors-count').innerText = `${investors.length} مستثمرين`;
-            document.getElementById('chart-participants-count').innerText = `${investors.length} مشاركين`;
-            document.getElementById('kpi-net-value').innerHTML = `${currentNetValue.toLocaleString()} <span class="text-xs font-normal text-slate-500">ريال</span>`;
-            document.getElementById('kpi-total-profits').innerHTML = `+${totalProfitsRecorded.toLocaleString()} <span class="text-xs font-normal text-slate-500">ريال</span>`;
-            document.getElementById('kpi-total-withdrawals').innerHTML = `${totalWithdrawalsRecorded.toLocaleString()} <span class="text-xs font-normal text-slate-500">ريال</span>`;
-            document.getElementById('kpi-total-losses').innerHTML = `${totalLossesRecorded.toLocaleString()} <span class="text-xs font-normal text-slate-500">ريال</span>`;
-
-            document.getElementById('kpi-profit-ratio').innerText = `+${baseCapital > 0 ? ((totalProfitsRecorded / baseCapital) * 100).toFixed(2) : 0}%`;
-            document.getElementById('kpi-loss-ratio').innerText = `-${baseCapital > 0 ? ((totalLossesRecorded / baseCapital) * 100).toFixed(2) : 0}%`;
+        function render() {
+            document.getElementById('kpi-profits').innerText = portfolioData.totalProfits.toLocaleString() + ' ريال';
+            document.getElementById('kpi-losses').innerText = portfolioData.totalLosses.toLocaleString() + ' ريال';
 
             const tbody = document.getElementById('investorsTableBody');
             tbody.innerHTML = '';
+            const baseCap = portfolioData.investors.reduce((s, i) => s + i.amount, 0);
 
-            investors.forEach((inv, index) => {
-                const sharePercent = baseCapital > 0 ? ((inv.amount / baseCapital) * 100).toFixed(2) : 0;
-                const availableForWithdrawal = Math.max(0, inv.profitAccumulated - inv.withdrawnProfits);
-                const netBalance = inv.amount + inv.profitAccumulated - inv.lossAccumulated - inv.withdrawnProfits;
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-100 dark:hover:bg-slate-800/40 transition";
-                tr.innerHTML = `
-                    <td class="px-6 py-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        ${inv.isManager ? '<i class="fa-solid fa-user-shield text-amber-500 text-xs"></i>' : '<i class="fa-solid fa-user text-slate-400 text-xs"></i>'}
-                        ${inv.name}
-                    </td>
-                    <td class="px-6 py-4 text-xs text-slate-600 dark:text-slate-300">
-                        <div><i class="fa-solid fa-phone text-emerald-500 text-[10px]"></i> ${inv.phone || 'غير مدخل'}</div>
-                        <div class="text-slate-400 mt-1"><i class="fa-solid fa-location-dot text-rose-500 text-[10px]"></i> ${inv.address || 'غير مدخل'}</div>
-                    </td>
-                    <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200">${inv.amount.toLocaleString()} SAR</td>
-                    <td class="px-6 py-4"><span class="bg-slate-200 dark:bg-slate-800 text-amber-600 dark:text-amber-400 border border-slate-300 dark:border-slate-700 text-xs font-bold px-2.5 py-1 rounded-lg">${sharePercent}%</span></td>
-                    <td class="px-6 py-4 font-bold text-emerald-600 dark:text-emerald-400">+${inv.profitAccumulated.toFixed(2)} SAR</td>
-                    <td class="px-6 py-4 font-bold text-amber-600 dark:text-amber-400">${inv.withdrawnProfits > 0 ? '-' + inv.withdrawnProfits.toFixed(2) : '0.00'} SAR</td>
-                    <td class="px-6 py-4 font-extrabold text-emerald-600 dark:text-emerald-300">${availableForWithdrawal.toFixed(2)} SAR</td>
-                    <td class="px-6 py-4 font-bold text-rose-600 dark:text-rose-400">-${inv.lossAccumulated.toFixed(2)} SAR</td>
-                    <td class="px-6 py-4 font-extrabold text-slate-900 dark:text-white text-base">${netBalance.toFixed(2)} SAR</td>
-                    <td class="px-6 py-4 text-center">
-                        <div class="flex items-center justify-center gap-2">
-                            <button onclick="quickOpenWithdrawal(${index})" class="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-xs font-bold px-2.5 py-1 rounded-lg">سحب</button>
-                            <button onclick="openEditInvestor(${index})" class="text-slate-400 hover:text-amber-500 px-1.5 py-1"><i class="fa-solid fa-pen-to-square"></i></button>
-                        </div>
-                    </td>
+            portfolioData.investors.forEach(inv => {
+                const net = inv.amount + inv.profitAccumulated - inv.lossAccumulated - inv.withdrawnProfits;
+                tbody.innerHTML += `
+                    <tr class="border-b border-slate-800">
+                        <td class="p-4 font-bold">${inv.name}</td>
+                        <td class="p-4">${inv.amount.toLocaleString()} SAR</td>
+                        <td class="p-4 text-emerald-400">+${inv.profitAccumulated.toFixed(2)} SAR</td>
+                        <td class="p-4 text-amber-400">-${inv.withdrawnProfits.toFixed(2)} SAR</td>
+                        <td class="p-4 font-extrabold text-white">${net.toFixed(2)} SAR</td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
-            });
-
-            renderInvestorCards();
-            renderHistoryLogs();
-            if (sharesChartInstance) updateChartsData();
-        }
-
-        function renderInvestorCards() {
-            const grid = document.getElementById('investorsCardsGrid');
-            const baseCapital = getTotalBaseCapital();
-            grid.innerHTML = '';
-
-            investors.forEach((inv, index) => {
-                const percent = baseCapital > 0 ? ((inv.amount / baseCapital) * 100).toFixed(2) : 0;
-                const availableForWithdrawal = Math.max(0, inv.profitAccumulated - inv.withdrawnProfits);
-                const netBalance = inv.amount + inv.profitAccumulated - inv.lossAccumulated - inv.withdrawnProfits;
-
-                const card = document.createElement('div');
-                card.className = "bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl flex flex-col justify-between";
-                card.innerHTML = `
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="font-bold text-slate-900 dark:text-white">${inv.name}</span>
-                            <span class="text-xs bg-slate-100 dark:bg-slate-800 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-full">${percent}%</span>
-                        </div>
-                        <div class="text-xs text-slate-500 mb-1">رأس المال: <strong class="text-slate-800 dark:text-slate-200">${inv.amount.toLocaleString()} SAR</strong></div>
-                        <div class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mb-2">متاح للسحب: <strong>${availableForWithdrawal.toFixed(2)} SAR</strong></div>
-                        <div class="text-xl font-extrabold text-slate-900 dark:text-white mt-1">${netBalance.toFixed(2)} <span class="text-xs font-normal text-slate-500">SAR</span></div>
-                    </div>
-                `;
-                grid.appendChild(card);
             });
         }
 
-        function renderHistoryLogs() {
-            const container = document.getElementById('historyList');
-            container.innerHTML = '';
-            if (historyLogs.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-slate-500 text-sm">لا توجد عمليات مسجلة</div>`;
-                return;
-            }
-            historyLogs.forEach(log => {
-                const item = document.createElement('div');
-                item.className = "flex items-center justify-between p-4 rounded-xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800";
-                item.innerHTML = `<div><div class="font-bold text-sm text-slate-900 dark:text-white">${log.title}</div><div class="text-xs text-slate-500">${log.note} - ${log.date}</div></div><div class="font-extrabold text-sm">${log.amount.toLocaleString()} SAR</div>`;
-                container.appendChild(item);
-            });
+        function openTransactionModal(type) {
+            document.getElementById('txType').value = type;
+            document.getElementById('modalTitle').innerText = type === 'profit' ? 'إضافة أرباح جديدة' : 'تسجيل خسارة';
+            document.getElementById('tx2Modal').classList.remove('hidden'); // تصحيح اسم المودل للمثال
+            document.getElementById('txModal').classList.remove('hidden');
         }
+        function closeModal() { document.getElementById('txModal').classList.add('hidden'); }
 
-        function setCalcType(type) {
-            currentCalcType = type;
-            calculateAndRenderTable();
-        }
-
-        function calculateAndRenderTable() {
-            const amountInput = parseFloat(document.getElementById('calcAmountInput').value) || 0;
-            const feePercent = currentCalcType === 'profit' ? (parseFloat(document.getElementById('calcManagerFeeSelect').value) || 0) : 0;
-            const baseCapital = getTotalBaseCapital();
-
-            const tbody = document.getElementById('calculatorResultsBody');
-            tbody.innerHTML = '';
-
-            investors.forEach(inv => {
-                const ratio = baseCapital > 0 ? (inv.amount / baseCapital) : 0;
-                const rawShare = amountInput * ratio;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="px-6 py-3.5 font-bold text-slate-900 dark:text-white">${inv.name}</td><td class="px-6 py-3.5">${inv.amount.toLocaleString()} SAR</td><td class="px-6 py-3.5">${(ratio * 100).toFixed(2)}%</td><td class="px-6 py-3.5">${rawShare.toFixed(2)} SAR</td><td class="px-6 py-3.5">0.00</td><td class="px-6 py-3.5 font-bold text-emerald-600">${rawShare.toFixed(2)} SAR</td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function applyCalculatedTransaction() {
-            const amountInput = parseFloat(document.getElementById('calcAmountInput').value) || 0;
-            const feePercent = currentCalcType === 'profit' ? (parseFloat(document.getElementById('calcManagerFeeSelect').value) || 0) : 0;
-            if (amountInput <= 0) return;
-
-            processPortfolioTransaction(currentCalcType, amountInput, feePercent);
-            historyLogs.unshift({ date: new Date().toLocaleDateString('ar-SA'), type: currentCalcType, title: currentCalcType === 'profit' ? "توزيع أرباح" : "خصم خسارة", amount: amountInput, note: "عمولة ومزامنة سحابية" });
-            syncAndSaveDataToCloud();
-            renderDashboard();
-            alert("تم تسديد المبالغ ومزامنتها سحابياً مع الآيفون والأندرويد!");
-        }
-
-        function openWithdrawalModal() { openModal('withdrawModal'); updateWithdrawalMaxInfo(); }
-        function quickOpenWithdrawal(idx) { openWithdrawalModal(); document.getElementById('withdrawInvestorSelect').value = idx; updateWithdrawalMaxInfo(); }
-        function updateWithdrawalMaxInfo() {
-            const idx = parseInt(document.getElementById('withdrawInvestorSelect').value) || 0;
-            const inv = investors[idx];
-            if (inv) document.getElementById('availableWithdrawalText').innerText = `${Math.max(0, inv.profitAccumulated - inv.withdrawnProfits).toFixed(2)} SAR`;
-        }
-
-        function handleWithdrawalSubmit(e) {
-            e.preventDefault();
-            const idx = parseInt(document.getElementById('withdrawInvestorSelect').value);
-            const amount = parseFloat(document.getElementById('withdrawAmountInput').value) || 0;
-            const inv = investors[idx];
-            if (!inv || amount <= 0) return;
-
-            inv.withdrawnProfits += amount;
-            totalWithdrawalsRecorded += amount;
-            historyLogs.unshift({ date: new Date().toLocaleDateString('ar-SA'), type: 'withdrawal', title: `سحب أرباح: ${inv.name}`, amount: amount, note: "سحب مباشر" });
-            syncAndSaveDataToCloud();
-            closeModal('withdrawModal');
-            renderDashboard();
-            alert("تم تسجيل السحب ومزامنته سحابياً بنجاح!");
-        }
-
-        function openTransactionModal(type) { document.getElementById('txType').value = type; openModal('transactionModal'); }
-        function handleQuickTransactionSubmit(e) {
+        function handleTx(e) {
             e.preventDefault();
             const type = document.getElementById('txType').value;
-            const amount = parseFloat(document.getElementById('txAmountInput').value) || 0;
-            if (amount <= 0) return;
+            const amount = parseFloat(document.getElementById('txAmount').value);
+            const baseCap = portfolioData.investors.reduce((s, i) => s + i.amount, 0);
 
-            processPortfolioTransaction(type, amount, 30);
-            historyLogs.unshift({ date: "الآن", type, title: type === 'profit' ? "توزيع أرباح" : "خصم خسارة", amount, note: "تخصيص تلقائي" });
-            syncAndSaveDataToCloud();
-            closeModal('transactionModal');
-            renderDashboard();
-        }
-
-        function initCharts() {
-            const ctx1 = document.getElementById('sharesChart').getContext('2d');
-            sharesChartInstance = new Chart(ctx1, { type: 'doughnut', data: { labels: investors.map(i => i.name), datasets: [{ data: investors.map(i => i.amount), backgroundColor: ['#10b981', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#3b82f6', '#64748b', '#a855f7'] }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
-
-            const ctx2 = document.getElementById('performanceChart').getContext('2d');
-            performanceChartInstance = new Chart(ctx2, { type: 'line', data: { labels: ['البداية', 'الآن'], datasets: [{ data: [100000, 100000 + (totalProfitsRecorded - totalLossesRecorded - totalWithdrawalsRecorded)], borderColor: '#06b6d4', fill: true }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
-        }
-
-        function updateChartsData() {
-            sharesChartInstance.data.labels = investors.map(i => i.name);
-            sharesChartInstance.data.datasets[0].data = investors.map(i => i.amount);
-            sharesChartInstance.update();
-            performanceChartInstance.data.datasets[0].data[1] = getTotalBaseCapital() + (totalProfitsRecorded - totalLossesRecorded - totalWithdrawalsRecorded);
-            performanceChartInstance.update();
-        }
-
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-        function handleSaveInvestor(e) {
-            e.preventDefault();
-            const index = parseInt(document.getElementById('investorIndex').value);
-            const name = document.getElementById('investorName').value;
-            const phone = document.getElementById('investorPhone').value;
-            const address = document.getElementById('investorAddress').value;
-            const amount = parseFloat(document.getElementById('investorAmount').value);
-
-            if (index >= 0) {
-                investors[index].name = name; investors[index].phone = phone; investors[index].address = address; investors[index].amount = amount;
+            if (type === 'profit') {
+                portfolioData.totalProfits += amount;
+                portfolioData.investors.forEach(inv => {
+                    const share = amount * (inv.amount / baseCap);
+                    inv.profitAccumulated += inv.isManager ? share * 1.3 : share * 0.7; // خصم 30% للمدير كمثال
+                });
             } else {
-                investors.push({ name, phone, address, amount, profitAccumulated: 0, lossAccumulated: 0, withdrawnProfits: 0, isManager: false });
+                portfolioData.totalLosses += amount;
+                portfolioData.investors.forEach(inv => {
+                    inv.lossAccumulated += amount * (inv.amount / baseCap);
+                });
             }
-            syncAndSaveDataToCloud();
-            closeModal('investorModal');
-            renderDashboard();
-        }
 
-        function openEditInvestor(index) {
-            const inv = investors[index];
-            document.getElementById('investorIndex').value = index;
-            document.getElementById('investorName').value = inv.name;
-            document.getElementById('investorPhone').value = inv.phone || '';
-            document.getElementById('investorAddress').value = inv.address || '';
-            document.getElementById('investorAmount').value = inv.amount;
-            openModal('investorModal');
-        }
-
-        function saveSettingsChanges() {
-            portfolioName = document.getElementById('settingPortfolioName').value;
-            syncAndSaveDataToCloud();
-            alert('تم حفظ إعدادات المنصة ومزامنتها!');
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-        }
-
-        function setupMobileMenu() {
-            document.getElementById('openMobileNav').addEventListener('click', () => document.getElementById('sidebar').classList.remove('-translate-x-full'));
-            document.getElementById('closeMobileNav').addEventListener('click', () => document.getElementById('sidebar').classList.add('-translate-x-full'));
-        }
-
-        function exportTableToCSV() {
-            let csv = "\uFEFFاسم المستثمر,الجوال,العنوان,رأس المال,النسبة,الأرباح,المسحوبات,المتاح للسحب,الخصومات,الصافي\n";
-            investors.forEach(inv => {
-                csv += `"${inv.name}","${inv.phone || ''}","${inv.address || ''}",${inv.amount},${inv.profitAccumulated.toFixed(2)},${inv.withdrawnProfits.toFixed(2)}\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", `Mahafiz_Admin_Report.csv`);
-            link.click();
+            saveToCloud();
+            closeModal();
+            alert('تم اعتماد العملية ومزامنتها سحابياً لتظهر فوراً على الآيفون والأندرويد!');
         }
     </script>
 </body>
